@@ -7,21 +7,35 @@ import {
   initialCategories,
   initialSiteSettings,
 } from "@/data/initialData";
+import {
+  saveProductToFirestore,
+  deleteProductFromFirestore,
+  saveCategoryToFirestore,
+  deleteCategoryFromFirestore,
+  saveSettingsToFirestore,
+  saveInquiryToFirestore,
+  subscribeToProducts,
+  subscribeToCategories,
+  subscribeToSettings,
+  syncInitialDataToFirestore,
+} from "@/lib/firestoreService";
 
 interface StoreContextType {
   products: Product[];
   categories: Category[];
   settings: SiteSettings;
   inquiries: Inquiry[];
-  addProduct: (product: Omit<Product, "id">) => void;
-  updateProduct: (id: string, product: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
-  addCategory: (category: Omit<Category, "id">) => void;
-  updateCategory: (id: string, category: Partial<Category>) => void;
-  deleteCategory: (id: string) => void;
-  updateSettings: (newSettings: Partial<SiteSettings>) => void;
-  addInquiry: (inquiry: Omit<Inquiry, "id" | "createdAt" | "status">) => void;
+  isFirestoreConnected: boolean;
+  addProduct: (product: Omit<Product, "id">) => Promise<void>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  addCategory: (category: Omit<Category, "id">) => Promise<void>;
+  updateCategory: (id: string, category: Partial<Category>) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
+  updateSettings: (newSettings: Partial<SiteSettings>) => Promise<void>;
+  addInquiry: (inquiry: Omit<Inquiry, "id" | "createdAt" | "status">) => Promise<void>;
   updateInquiryStatus: (id: string, status: Inquiry["status"]) => void;
+  syncInitialData: () => Promise<{ success: boolean; message: string }>;
   resetToDefaults: () => void;
   exportDataJSON: () => string;
   importDataJSON: (jsonString: string) => boolean;
@@ -94,6 +108,48 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return [];
   });
 
+  const [isFirestoreConnected, setIsFirestoreConnected] = useState(false);
+
+  // Real-time synchronization with Cloud Firestore
+  useEffect(() => {
+    const unsubProducts = subscribeToProducts(
+      (firestoreProducts) => {
+        if (firestoreProducts && firestoreProducts.length > 0) {
+          setProducts(firestoreProducts);
+          setIsFirestoreConnected(true);
+        }
+      },
+      () => setIsFirestoreConnected(false)
+    );
+
+    const unsubCategories = subscribeToCategories(
+      (firestoreCategories) => {
+        if (firestoreCategories && firestoreCategories.length > 0) {
+          setCategories(firestoreCategories);
+          setIsFirestoreConnected(true);
+        }
+      },
+      () => setIsFirestoreConnected(false)
+    );
+
+    const unsubSettings = subscribeToSettings(
+      (firestoreSettings) => {
+        if (firestoreSettings) {
+          setSettings(firestoreSettings);
+          setIsFirestoreConnected(true);
+        }
+      },
+      () => setIsFirestoreConnected(false)
+    );
+
+    return () => {
+      unsubProducts();
+      unsubCategories();
+      unsubSettings();
+    };
+  }, []);
+
+  // Save to local cache as fallback
   useEffect(() => {
     try {
       localStorage.setItem("habat_alshahd_products", JSON.stringify(products));
@@ -105,42 +161,69 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, [products, categories, settings, inquiries]);
 
-  const addProduct = (prodData: Omit<Product, "id">) => {
+  const addProduct = async (prodData: Omit<Product, "id">) => {
     const newId = "prod_" + Date.now();
     const newProduct: Product = { ...prodData, id: newId };
     setProducts((prev) => [newProduct, ...prev]);
+    await saveProductToFirestore(newProduct);
   };
 
-  const updateProduct = (id: string, updatedFields: Partial<Product>) => {
+  const updateProduct = async (id: string, updatedFields: Partial<Product>) => {
+    let updatedProduct: Product | undefined;
     setProducts((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...updatedFields } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          updatedProduct = { ...item, ...updatedFields };
+          return updatedProduct;
+        }
+        return item;
+      })
     );
+    if (updatedProduct) {
+      await saveProductToFirestore(updatedProduct);
+    }
   };
 
-  const deleteProduct = (id: string) => {
+  const deleteProduct = async (id: string) => {
     setProducts((prev) => prev.filter((item) => item.id !== id));
+    await deleteProductFromFirestore(id);
   };
 
-  const addCategory = (catData: Omit<Category, "id">) => {
+  const addCategory = async (catData: Omit<Category, "id">) => {
     const newId = "cat_" + Date.now();
-    setCategories((prev) => [...prev, { ...catData, id: newId }]);
+    const newCategory: Category = { ...catData, id: newId };
+    setCategories((prev) => [...prev, newCategory]);
+    await saveCategoryToFirestore(newCategory);
   };
 
-  const updateCategory = (id: string, updatedFields: Partial<Category>) => {
+  const updateCategory = async (id: string, updatedFields: Partial<Category>) => {
+    let updatedCategory: Category | undefined;
     setCategories((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...updatedFields } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          updatedCategory = { ...item, ...updatedFields };
+          return updatedCategory;
+        }
+        return item;
+      })
     );
+    if (updatedCategory) {
+      await saveCategoryToFirestore(updatedCategory);
+    }
   };
 
-  const deleteCategory = (id: string) => {
+  const deleteCategory = async (id: string) => {
     setCategories((prev) => prev.filter((item) => item.id !== id));
+    await deleteCategoryFromFirestore(id);
   };
 
-  const updateSettings = (newSettings: Partial<SiteSettings>) => {
-    setSettings((prev) => ({ ...prev, ...newSettings }));
+  const updateSettings = async (newSettings: Partial<SiteSettings>) => {
+    const merged = { ...settings, ...newSettings };
+    setSettings(merged);
+    await saveSettingsToFirestore(merged);
   };
 
-  const addInquiry = (inquiryData: Omit<Inquiry, "id" | "createdAt" | "status">) => {
+  const addInquiry = async (inquiryData: Omit<Inquiry, "id" | "createdAt" | "status">) => {
     const newInq: Inquiry = {
       ...inquiryData,
       id: "inq_" + Date.now(),
@@ -148,12 +231,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       status: "new",
     };
     setInquiries((prev) => [newInq, ...prev]);
+    await saveInquiryToFirestore(newInq);
   };
 
   const updateInquiryStatus = (id: string, status: Inquiry["status"]) => {
     setInquiries((prev) =>
       prev.map((inq) => (inq.id === id ? { ...inq, status } : inq))
     );
+  };
+
+  const syncInitialData = async () => {
+    const res = await syncInitialDataToFirestore();
+    if (res.success) {
+      setIsFirestoreConnected(true);
+    }
+    return res;
   };
 
   const resetToDefaults = () => {
@@ -172,9 +264,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const importDataJSON = (jsonString: string) => {
     try {
       const parsed = JSON.parse(jsonString);
-      if (parsed.products) setProducts(parsed.products);
-      if (parsed.categories) setCategories(parsed.categories);
-      if (parsed.settings) setSettings(parsed.settings);
+      if (parsed.products) {
+        setProducts(parsed.products);
+        parsed.products.forEach((p: Product) => saveProductToFirestore(p));
+      }
+      if (parsed.categories) {
+        setCategories(parsed.categories);
+        parsed.categories.forEach((c: Category) => saveCategoryToFirestore(c));
+      }
+      if (parsed.settings) {
+        setSettings(parsed.settings);
+        saveSettingsToFirestore(parsed.settings);
+      }
       if (parsed.inquiries) setInquiries(parsed.inquiries);
       return true;
     } catch {
@@ -189,6 +290,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         categories,
         settings,
         inquiries,
+        isFirestoreConnected,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -198,6 +300,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         updateSettings,
         addInquiry,
         updateInquiryStatus,
+        syncInitialData,
         resetToDefaults,
         exportDataJSON,
         importDataJSON,
