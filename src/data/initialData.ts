@@ -36,6 +36,13 @@ export const initialCategories: Category[] = [
     description: "أشكال النجوم والتشكيلات الفاخرة لضيافة استثنائية",
     image: "/images/items/nojoom.png",
   },
+  {
+    id: "other-sweets",
+    name: "أصناف أخرى",
+    slug: "other-sweets",
+    description: "تشكيلة البسكويت، الكعك، والبتفور الفاخر المجهز بعناية",
+    image: "/images/items/petits_fours.png",
+  },
 ];
 
 export const initialProducts: Product[] = [
@@ -262,6 +269,101 @@ export const initialProducts: Product[] = [
     isFeatured: false,
     isAvailable: true,
     tags: ["تشكيلات", "أطفال وعائلات"],
+  },
+  {
+    id: "naem-kaak",
+    name: "ناعم (كعك)",
+    category: "other-sweets",
+    price: 45,
+    unit: "طبق / علبة",
+    description:
+      "كعك ناعم هش مغطى بالسكر البودرة الناعم، يذوب في الفم بنكهة تقليدية أصيلة ومحبوبة في كل الأوقات.",
+    image: "/images/items/naem_kaak.png",
+    isFeatured: true,
+    isAvailable: true,
+    tags: ["كعك ناعم", "سكر بودرة", "ضيافة الشاي"],
+    options: [
+      {
+        name: "الحجم / العبوة",
+        choices: ["علبة وسط", "علبة كبيرة"],
+      },
+    ],
+  },
+  {
+    id: "petits-fours",
+    name: "بتفور",
+    category: "other-sweets",
+    price: 50,
+    unit: "طبق / علبة",
+    description:
+      "تشكيلة بتفور مشكل متقن الخبز بقوام هش وخفيف، خيار راقٍ للضيافة مع الشاي والقهوة.",
+    image: "/images/items/petits_fours.png",
+    isFeatured: true,
+    isAvailable: true,
+    tags: ["بتفور مشكل", "هش وخفيف", "أكثر طلباً"],
+    options: [
+      {
+        name: "الحجم / العبوة",
+        choices: ["علبة وسط", "علبة كبيرة"],
+      },
+    ],
+  },
+  {
+    id: "tea-biscuit",
+    name: "بسكويت شاي",
+    category: "other-sweets",
+    price: 35,
+    unit: "عبوة عائلية",
+    description:
+      "بسكويت شاي مقرمش ومحمص بدرجة ذهبية متميزة، رفيق الجلسات العائلية وكوب الشاي الصباحي والمسائي.",
+    image: "/images/items/tea_biscuit.png",
+    isFeatured: false,
+    isAvailable: true,
+    tags: ["مقرمش", "شاي الصباح", "اقتصادي"],
+    options: [
+      {
+        name: "الحجم / العبوة",
+        choices: ["عبوة نصف كيلو", "عبوة كيلو"],
+      },
+    ],
+  },
+  {
+    id: "yansoon",
+    name: "يانسون",
+    category: "other-sweets",
+    price: 40,
+    unit: "طبق / علبة",
+    description:
+      "شابورة وبسكويت اليانسون الذهبي برائحته العطرية الزكية وقرمشته المحبوبة مع المشروبات الساخنة.",
+    image: "/images/items/yansoon.png",
+    isFeatured: false,
+    isAvailable: true,
+    tags: ["يانسون أصيل", "مقرمش وعطري", "مع القهوة والشاي"],
+    options: [
+      {
+        name: "الحجم / العبوة",
+        choices: ["علبة وسط", "علبة كبيرة"],
+      },
+    ],
+  },
+  {
+    id: "ghraiba",
+    name: "غريبة",
+    category: "other-sweets",
+    price: 48,
+    unit: "طبق / علبة",
+    description:
+      "حبات الغريبة البيضاء الناعمة المتقنة والمخبوزة بالسمن الفاخر، قوام يذوب بالفم يضفي لمسة كلاسيكية على ضيافتكم.",
+    image: "/images/items/ghraiba.png",
+    isFeatured: true,
+    isAvailable: true,
+    tags: ["غريبة كلاسيك", "تذوب بالفم", "ضيافة فاخرة"],
+    options: [
+      {
+        name: "الحجم / العبوة",
+        choices: ["علبة وسط", "علبة كبيرة"],
+      },
+    ],
   },
 ];
 

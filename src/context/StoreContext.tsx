@@ -34,7 +34,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       try {
         const p = localStorage.getItem("habat_alshahd_products");
-        if (p) return JSON.parse(p);
+        if (p) {
+          const parsed = JSON.parse(p) as Product[];
+          const existingIds = new Set(parsed.map((item) => item.id));
+          const missing = initialProducts.filter((item) => !existingIds.has(item.id));
+          if (missing.length > 0) {
+            return [...parsed, ...missing];
+          }
+          return parsed;
+        }
       } catch (e) {
         console.error("Failed to load products from localStorage", e);
       }
@@ -46,7 +54,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       try {
         const c = localStorage.getItem("habat_alshahd_categories");
-        if (c) return JSON.parse(c);
+        if (c) {
+          const parsed = JSON.parse(c) as Category[];
+          const existingIds = new Set(parsed.map((cat) => cat.id));
+          const missing = initialCategories.filter((cat) => !existingIds.has(cat.id));
+          if (missing.length > 0) {
+            return [...parsed, ...missing];
+          }
+          return parsed;
+        }
       } catch (e) {
         console.error("Failed to load categories from localStorage", e);
       }

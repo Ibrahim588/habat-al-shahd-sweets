@@ -1,43 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useStore } from "@/context/StoreContext";
 import {
   Phone,
   MessageCircle,
   MapPin,
   Clock,
-  Send,
-  CheckCircle2,
   ExternalLink,
   Sparkles,
 } from "lucide-react";
 
 export default function ContactPage() {
-  const { settings, addInquiry } = useStore();
-
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [occasionType, setOccasionType] = useState("طلب عام");
-  const [message, setMessage] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !phone.trim() || !message.trim()) return;
-
-    addInquiry({
-      name: name.trim(),
-      phone: phone.trim(),
-      occasionType,
-      message: message.trim(),
-    });
-
-    setSubmitted(true);
-    setName("");
-    setPhone("");
-    setMessage("");
-  };
+  const { settings } = useStore();
 
   return (
     <div className="py-12 sm:py-20 bg-cream min-h-screen">
@@ -51,7 +26,7 @@ export default function ContactPage() {
             تواصل مع حلويات حبات الشهد
           </h1>
           <p className="text-sm text-brown/70 leading-relaxed">
-            يسعدنا استقبال استفساراتكم وطلباتكم المخصصة للمناسبات والضيافة عبر الهاتف أو واتساب مباشرة، أو من خلال النموذج أدناه.
+            يسعدنا استقبال استفساراتكم وطلباتكم المخصصة للمناسبات والضيافة عبر الهاتف أو واتساب مباشرة.
           </p>
         </div>
 
@@ -147,151 +122,45 @@ export default function ContactPage() {
           </div>
         </div>
 
-        {/* Contact Form & Direct Order Box */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Form */}
-          <div className="lg:col-span-7 bg-white rounded-3xl p-8 sm:p-10 border border-beige shadow-sm">
-            <h2 className="text-xl sm:text-2xl font-black text-brown-dark mb-2">
-              أرسل رسالة أو استفساراً
-            </h2>
-            <p className="text-xs sm:text-sm text-brown/70 mb-6">
-              سيتم تسجيل رسالتك وسيتواصل معك فريق حلويات حبات الشهد في أقرب وقت.
-            </p>
-
-            {submitted ? (
-              <div className="p-6 rounded-2xl bg-green-50 border border-green-200 text-center space-y-3">
-                <CheckCircle2 className="w-10 h-10 text-green-600 mx-auto" />
-                <h3 className="font-extrabold text-base text-green-900">
-                  تم إرسال رسالتك بنجاح!
-                </h3>
-                <p className="text-xs text-green-700">
-                  شكراً لتواصلك مع حبات الشهد. سنقوم بالرد عليك هاتفياً أو عبر واتساب قريباً.
-                </p>
-                <button
-                  onClick={() => setSubmitted(false)}
-                  className="mt-2 text-xs font-bold text-green-800 underline"
-                >
-                  إرسال رسالة أخرى
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown block">
-                      الاسم الكريم *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="محمد الفندي"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full text-xs p-3.5 rounded-xl border border-beige bg-cream/30 focus:border-gold focus:outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-brown block">
-                      رقم الجوال *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="05XXXXXXXX"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full text-xs p-3.5 rounded-xl border border-beige bg-cream/30 focus:border-gold focus:outline-none text-right"
-                      dir="rtl"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-brown block">
-                    نوع الطلب أو المناسبة
-                  </label>
-                  <select
-                    value={occasionType}
-                    onChange={(e) => setOccasionType(e.target.value)}
-                    className="w-full text-xs p-3.5 rounded-xl border border-beige bg-cream/30 focus:border-gold focus:outline-none cursor-pointer"
-                  >
-                    <option value="طلب عام">طلب عام من المنيو</option>
-                    <option value="تجهيز صواني عرس / خطوبة">
-                      تجهيز صواني عرس أو خطوبة
-                    </option>
-                    <option value="ضيافة جمعات واجتماعات">
-                      ضيافة جمعات واجتماعات عائلية
-                    </option>
-                    <option value="طلب كميات مخصصة">طلب كميات مخصصة</option>
-                    <option value="اقتراح أو استفسار">اقتراح أو استفسار</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-brown block">
-                    تفاصيل الرسالة أو الطلب *
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    placeholder="اكتب هنا الأصناف والكميات المطلوبة، أو موعد المناسبة..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="w-full text-xs p-3.5 rounded-xl border border-beige bg-cream/30 focus:border-gold focus:outline-none leading-relaxed"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-brown hover:bg-brown-dark text-cream-light font-extrabold text-sm shadow-md transition-all"
-                >
-                  <Send className="w-4 h-4 text-gold" />
-                  <span>إرسال الرسالة الآن</span>
-                </button>
-              </form>
-            )}
+        {/* Direct WhatsApp Callout Info */}
+        <div className="max-w-3xl mx-auto rounded-3xl bg-brown-dark text-cream-light p-8 sm:p-12 border-2 border-gold/40 shadow-xl space-y-6 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/20 text-gold text-xs font-bold">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>استجابة فورية</span>
           </div>
 
-          {/* Direct WhatsApp Callout Info */}
-          <div className="lg:col-span-5 rounded-3xl bg-brown-dark text-cream-light p-8 sm:p-10 border-2 border-gold/40 shadow-xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/20 text-gold text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>استجابة فورية</span>
-            </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-cream-light">
+            طلب سريع وتواصل مباشر عبر واتساب
+          </h2>
 
-            <h3 className="text-2xl font-black text-cream-light">
-              هل تفضل الطلب السريع دون انتظار؟
-            </h3>
+          <p className="text-xs sm:text-sm text-cream/80 leading-relaxed max-w-xl mx-auto">
+            فريقنا متواجد على مدار اليوم لتسجيل طلباتكم وتأكيد الحجوزات للمناسبات والضيافة عبر المحادثة المباشرة في تطبيق واتساب.
+          </p>
 
-            <p className="text-xs sm:text-sm text-cream/80 leading-relaxed">
-              فريقنا متواجد على مدار اليوم لتسجيل طلباتكم وتأكيد الحجوزات للمناسبات عبر المحادثة المباشرة في تطبيق واتساب.
-            </p>
+          <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+            <a
+              href={`https://wa.me/${settings.primaryWhatsapp}?text=${encodeURIComponent(
+                "مرحباً حلويات حبات الشهد 🌸 أود تقديم طلب مباشر عبر واتساب."
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold text-sm shadow-lg transition-all"
+            >
+              <MessageCircle className="w-5 h-5 fill-white" />
+              <span>محادثة واتساب: {settings.primaryPhone}</span>
+            </a>
 
-            <div className="pt-2 space-y-3">
-              <a
-                href={`https://wa.me/${settings.primaryWhatsapp}?text=${encodeURIComponent(
-                  "مرحباً حلويات حبات الشهد 🌸 أود تقديم طلب مباشر عبر واتساب."
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold text-sm shadow-lg transition-all"
-              >
-                <MessageCircle className="w-5 h-5 fill-white" />
-                <span>محادثة واتساب فورية: {settings.primaryPhone}</span>
-              </a>
-
-              <a
-                href={`https://wa.me/${settings.secondaryWhatsapp}?text=${encodeURIComponent(
-                  "مرحباً حلويات حبات الشهد 🌸 أود تقديم طلب مباشر عبر واتساب."
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/20 text-cream-light font-bold text-xs border border-gold/30 transition-all"
-              >
-                <MessageCircle className="w-4 h-4 text-[#25D366] fill-current" />
-                <span>محادثة واتساب الرقم الثاني: {settings.secondaryPhone}</span>
-              </a>
-            </div>
+            <a
+              href={`https://wa.me/${settings.secondaryWhatsapp}?text=${encodeURIComponent(
+                "مرحباً حلويات حبات الشهد 🌸 أود تقديم طلب مباشر عبر واتساب."
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-white/10 hover:bg-white/20 text-cream-light font-bold text-sm border border-gold/30 transition-all"
+            >
+              <MessageCircle className="w-4 h-4 text-[#25D366] fill-current" />
+              <span>محادثة واتساب: {settings.secondaryPhone}</span>
+            </a>
           </div>
         </div>
       </div>
