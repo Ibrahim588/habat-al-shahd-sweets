@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #FFF9F1;
+  --color-cream-light: #FFFCF7;
+  --color-cream-dark: #F7EFE4;
+  --color-gold: #C89B3C;
+  --color-gold-light: #E5B855;
+  --color-gold-dark: #986A16;
+  --color-gold-muted: #EAD59E;
+  --color-brown: #493126;
+  --color-brown-dark: #2B180E;
+  --color-brown-light: #705244;
+  --color-beige: #EDE0D0;
+  --color-beige-light: #F8F3EC;
+  --font-arabic: var(--font-cairo), system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  --background: #FFF9F1;
+  --foreground: #493126;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-arabic), sans-serif;
+  overflow-x: hidden;
+  direction: rtl;
+  text-align: right;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F7EFE4;
+}
+::-webkit-scrollbar-thumb {
+  background: #C89B3C;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #986A16;
+}
+
+/* Animations & Glassmorphism utilities */
+.glass-nav {
+  background: rgba(255, 249, 241, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #DFB254 0%, #C89B3C 50%, #A97A24 100%);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #B58428 0%, #C89B3C 50%, #835511 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brown-gradient {
+  background: linear-gradient(135deg, #493126 0%, #352016 100%);
+}
+
+.luxury-card-shadow {
+  box-shadow: 0 10px 30px -10px rgba(73, 49, 38, 0.08), 0 4px 12px -2px rgba(200, 155, 60, 0.06);
+}
+
+.luxury-card-shadow-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-card-shadow-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 35px -12px rgba(73, 49, 38, 0.16), 0 8px 18px -4px rgba(200, 155, 60, 0.15);
+}
