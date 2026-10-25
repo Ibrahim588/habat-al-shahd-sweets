@@ -133,7 +133,7 @@ export default function AdminPage() {
             <div>
               <input
                 type="password"
-                placeholder="رمز المرور (الافتراضي: shahd2026)"
+                placeholder="أدخل رمز المرور"
                 value={passcode}
                 onChange={(e) => {
                   setPasscode(e.target.value);
@@ -143,7 +143,7 @@ export default function AdminPage() {
               />
               {loginError && (
                 <span className="text-xs text-red-600 block mt-1.5 font-bold">
-                  رمز المرور غير صحيح. جرب shahd2026
+                  رمز المرور غير صحيح، يرجى التحقق والمحاولة مرة أخرى
                 </span>
               )}
             </div>
