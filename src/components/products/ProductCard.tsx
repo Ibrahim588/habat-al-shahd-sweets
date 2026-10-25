@@ -46,6 +46,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover group-hover:scale-108 transition-transform duration-500"
+            unoptimized={product.image?.startsWith("http")}
           />
         </Link>
 

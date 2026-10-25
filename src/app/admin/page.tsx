@@ -24,6 +24,8 @@ import {
   Sparkles,
   Phone,
   MessageCircle,
+  Link2,
+  X,
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -61,7 +63,7 @@ export default function AdminPage() {
     price: 50,
     unit: "طبق / كغم",
     description: "",
-    image: "/images/basbousa.jpg",
+    image: "",
     isFeatured: false,
     isAvailable: true,
   });
@@ -479,22 +481,76 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-brown block">
-                      مسار أو رابط الصورة
+                    <label className="text-xs font-bold text-brown flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Link2 className="w-3.5 h-3.5 text-gold-dark" />
+                        <span>رابط صورة الصنف (URL مباشر)</span>
+                      </span>
+                      {newProduct.image && (
+                        <span className="text-[10px] text-green-700 font-semibold bg-green-50 px-2 py-0.5 rounded-md">
+                          تم تعيين الرابط
+                        </span>
+                      )}
                     </label>
-                    <input
-                      type="text"
-                      value={newProduct.image}
-                      onChange={(e) =>
-                        setNewProduct({ ...newProduct, image: e.target.value })
-                      }
-                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold"
-                    />
+                    <div className="relative">
+                      <input
+                        type="url"
+                        placeholder="https://example.com/sweet-photo.jpg أو /images/item.png"
+                        value={newProduct.image}
+                        onChange={(e) =>
+                          setNewProduct({ ...newProduct, image: e.target.value })
+                        }
+                        className="w-full text-xs p-3 pl-8 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold text-left font-mono"
+                        dir="ltr"
+                      />
+                      {newProduct.image && (
+                        <button
+                          type="button"
+                          onClick={() => setNewProduct({ ...newProduct, image: "" })}
+                          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brown/40 hover:text-brown text-xs p-1"
+                          title="مسح الرابط"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-brown/60 block">
+                      ضع رابط الصورة المباشر من أي موقع أو خدمة رفع صور (يدعم JPG, PNG, WebP)
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-6 pt-5">
+                  {/* Live Image Preview */}
+                  {newProduct.image ? (
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-beige">
+                      <div className="relative w-16 h-14 rounded-lg overflow-hidden bg-cream shrink-0 border border-gold/40">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={newProduct.image}
+                          alt="معاينة الصورة المرفقة"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/images/basbousa.jpg";
+                          }}
+                        />
+                      </div>
+                      <div className="text-right flex-1 min-w-0">
+                        <span className="text-xs font-bold text-brown block">معاينة الصورة المرفقة</span>
+                        <span className="text-[10px] text-brown/60 truncate block text-left font-mono" dir="ltr">
+                          {newProduct.image}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-2.5 rounded-xl bg-cream/40 border border-dashed border-beige text-center">
+                      <span className="text-[11px] text-brown/60">
+                        معاينة الصورة ستظهر هنا فور إدخال الرابط (في حال تركه فارغاً ستُعتمد صورة افتراضية)
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-6 pt-2">
                     <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-brown">
                       <input
                         type="checkbox"
@@ -547,8 +603,25 @@ export default function AdminPage() {
 
                 <button
                   onClick={() => {
-                    if (!newProduct.name.trim()) return;
-                    addProduct(newProduct);
+                    if (!newProduct.name.trim()) {
+                      alert("يرجى إدخال اسم الصنف أولاً");
+                      return;
+                    }
+                    const finalImage = newProduct.image.trim() || "/images/basbousa.jpg";
+                    addProduct({
+                      ...newProduct,
+                      image: finalImage,
+                    });
+                    setNewProduct({
+                      name: "",
+                      category: categories[0]?.id || "basbousa",
+                      price: 50,
+                      unit: "طبق / كغم",
+                      description: "",
+                      image: "",
+                      isFeatured: false,
+                      isAvailable: true,
+                    });
                     setIsAddingProduct(false);
                     showNotification(`تمت إضافة الصنف "${newProduct.name}" بنجاح!`);
                   }}
@@ -556,6 +629,214 @@ export default function AdminPage() {
                 >
                   حفظ الصنف الجديد
                 </button>
+              </div>
+            )}
+
+            {/* Edit Product Modal */}
+            {editingProduct && (
+              <div className="p-6 rounded-2xl bg-cream-light border-2 border-gold/40 space-y-4 animate-in fade-in">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-black text-base text-brown">
+                    تعديل بيانات الصنف: {editingProduct.name}
+                  </h3>
+                  <button
+                    onClick={() => setEditingProduct(null)}
+                    className="text-brown/60 hover:text-brown text-xs"
+                  >
+                    إلغاء
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-brown block">
+                      اسم الصنف *
+                    </label>
+                    <input
+                      type="text"
+                      value={editingProduct.name}
+                      onChange={(e) =>
+                        setEditingProduct({ ...editingProduct, name: e.target.value })
+                      }
+                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-brown block">
+                      التصنيف *
+                    </label>
+                    <select
+                      value={editingProduct.category}
+                      onChange={(e) =>
+                        setEditingProduct({ ...editingProduct, category: e.target.value })
+                      }
+                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold cursor-pointer"
+                    >
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-brown block">
+                      السعر (ر.س)
+                    </label>
+                    <input
+                      type="number"
+                      value={editingProduct.price || 0}
+                      onChange={(e) =>
+                        setEditingProduct({
+                          ...editingProduct,
+                          price: Number(e.target.value),
+                        })
+                      }
+                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-brown block">
+                      الوحدة
+                    </label>
+                    <input
+                      type="text"
+                      value={editingProduct.unit}
+                      onChange={(e) =>
+                        setEditingProduct({ ...editingProduct, unit: e.target.value })
+                      }
+                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold"
+                    />
+                  </div>
+                </div>
+
+                {/* Edit Image URL */}
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-brown flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Link2 className="w-3.5 h-3.5 text-gold-dark" />
+                        <span>رابط صورة الصنف (URL مباشر)</span>
+                      </span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="url"
+                        placeholder="https://example.com/sweet-photo.jpg"
+                        value={editingProduct.image}
+                        onChange={(e) =>
+                          setEditingProduct({ ...editingProduct, image: e.target.value })
+                        }
+                        className="w-full text-xs p-3 pl-8 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold text-left font-mono"
+                        dir="ltr"
+                      />
+                      {editingProduct.image && (
+                        <button
+                          type="button"
+                          onClick={() => setEditingProduct({ ...editingProduct, image: "" })}
+                          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brown/40 hover:text-brown text-xs p-1"
+                          title="مسح الرابط"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {editingProduct.image && (
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-beige">
+                      <div className="relative w-16 h-14 rounded-lg overflow-hidden bg-cream shrink-0 border border-gold/40">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={editingProduct.image}
+                          alt="معاينة الصورة"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/images/basbousa.jpg";
+                          }}
+                        />
+                      </div>
+                      <div className="text-right flex-1 min-w-0">
+                        <span className="text-xs font-bold text-brown block">معاينة الصورة المرفقة</span>
+                        <span className="text-[10px] text-brown/60 truncate block text-left font-mono" dir="ltr">
+                          {editingProduct.image}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-6 pt-2">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-brown">
+                      <input
+                        type="checkbox"
+                        checked={editingProduct.isFeatured}
+                        onChange={(e) =>
+                          setEditingProduct({
+                            ...editingProduct,
+                            isFeatured: e.target.checked,
+                          })
+                        }
+                        className="rounded text-gold focus:ring-gold"
+                      />
+                      <span>صنف مميز (يظهر في الواجهة)</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-brown">
+                      <input
+                        type="checkbox"
+                        checked={editingProduct.isAvailable}
+                        onChange={(e) =>
+                          setEditingProduct({
+                            ...editingProduct,
+                            isAvailable: e.target.checked,
+                          })
+                        }
+                        className="rounded text-gold focus:ring-gold"
+                      />
+                      <span>متاح للطلب</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-brown block">
+                    الوصف
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={editingProduct.description}
+                    onChange={(e) =>
+                      setEditingProduct({
+                        ...editingProduct,
+                        description: e.target.value,
+                      })
+                    }
+                    className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      if (!editingProduct.name.trim()) return;
+                      updateProduct(editingProduct.id, editingProduct);
+                      setEditingProduct(null);
+                      showNotification(`تم حفظ تعديل الصنف "${editingProduct.name}" بنجاح!`);
+                    }}
+                    className="bg-brown hover:bg-brown-dark text-cream-light font-bold px-6 py-2.5 rounded-xl text-xs"
+                  >
+                    حفظ التعديلات
+                  </button>
+                  <button
+                    onClick={() => setEditingProduct(null)}
+                    className="bg-cream hover:bg-beige/60 text-brown font-bold px-4 py-2.5 rounded-xl text-xs"
+                  >
+                    إلغاء
+                  </button>
+                </div>
               </div>
             )}
 
@@ -586,6 +867,7 @@ export default function AdminPage() {
                               fill
                               sizes="48px"
                               className="object-cover"
+                              unoptimized={p.image?.startsWith("http")}
                             />
                           </div>
                         </td>
@@ -632,20 +914,9 @@ export default function AdminPage() {
                         <td className="p-3 text-center">
                           <div className="flex items-center justify-center gap-1.5">
                             <button
-                              onClick={() => {
-                                const newPrice = prompt(
-                                  `تعديل سعر ${p.name} (ر.س):`,
-                                  p.price?.toString() || ""
-                                );
-                                if (newPrice !== null) {
-                                  updateProduct(p.id, {
-                                    price: Number(newPrice) || undefined,
-                                  });
-                                  showNotification("تم تعديل السعر بنجاح!");
-                                }
-                              }}
+                              onClick={() => setEditingProduct(p)}
                               className="p-1.5 rounded-lg hover:bg-beige/60 text-brown"
-                              title="تعديل السعر"
+                              title="تعديل الصنف ورابط الصورة"
                             >
                               <Edit className="w-4 h-4" />
                             </button>

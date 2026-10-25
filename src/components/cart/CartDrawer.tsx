@@ -176,6 +176,7 @@ export default function CartDrawer() {
                           fill
                           sizes="64px"
                           className="object-cover"
+                          unoptimized={item.image?.startsWith("http")}
                         />
                       </div>
 

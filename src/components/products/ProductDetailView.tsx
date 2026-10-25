@@ -126,6 +126,7 @@ export default function ProductDetailView({ productId }: { productId: string }) 
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
                   priority
+                  unoptimized={product.image?.startsWith("http")}
                 />
                 {product.isFeatured && (
                   <span className="absolute top-4 right-4 bg-gold text-brown-dark font-extrabold text-xs px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 backdrop-blur-sm">
