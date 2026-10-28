@@ -29,6 +29,8 @@ import {
   Database,
   Cloud,
   RefreshCw,
+  Clock,
+  MapPin,
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -405,7 +407,7 @@ export default function AdminPage() {
                   className="bg-brown hover:bg-brown-dark text-cream-light font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all"
                 >
                   <Settings className="w-4 h-4 text-gold" />
-                  <span>تعديل أرقام واتساب والإعلانات</span>
+                  <span>تعديل ساعات العمل والإعدادات</span>
                 </button>
                 <button
                   onClick={() => {
@@ -1118,11 +1120,83 @@ export default function AdminPage() {
             <div className="pb-4 border-b border-beige">
               <h2 className="text-xl font-black text-brown">إعدادات الموقع والهوية</h2>
               <span className="text-xs text-brown/60">
-                تعديل نصوص الصفحة الرئيسية، أرقام التواصل، رابط واتساب، والشريط الإعلاني
+                تعديل نصوص الصفحة الرئيسية، أوقات وزمن العمل، أرقام التواصل، رابط واتساب، والشريط الإعلاني
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Working Hours & Store Schedule */}
+              <div className="space-y-4 p-5 rounded-2xl bg-cream/30 border border-beige">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-extrabold text-sm text-brown flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-gold" />
+                    <span>أوقات وزمن العمل المعتمد</span>
+                  </h3>
+                  <span className="text-[10px] text-gold-dark font-bold bg-gold/15 px-2.5 py-0.5 rounded-full">
+                    مباشر في الموقع
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-brown block">
+                    نص ساعات العمل المعتمدة (يظهر في أسفل الموقع وصفحة التواصل):
+                  </label>
+                  <input
+                    type="text"
+                    value={localSettings.workingHours || ""}
+                    onChange={(e) =>
+                      setLocalSettings({
+                        ...localSettings,
+                        workingHours: e.target.value,
+                      })
+                    }
+                    placeholder="مثال: يومياً من 9:00 صباحاً حتى 11:30 مساءً"
+                    className="w-full text-xs p-3 rounded-xl border border-beige bg-white font-medium focus:border-gold focus:outline-none"
+                  />
+                </div>
+
+                {/* Quick Presets */}
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-bold text-brown/70 block">
+                    نماذج جاهزة للاختيار السريع:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      "يومياً من 9:00 صباحاً حتى 11:30 مساءً",
+                      "فترتين: 9:00 ص - 1:00 م | 4:30 م - 11:30 م",
+                      "طوال أيام الأسبوع من 10:00 ص حتى 12:00 منتصف الليل",
+                      "أوقات رمضان: يومياً بعد صلاة العصر حتى 2:00 فجراً",
+                      "يومياً من 8:00 ص حتى 11:00 م (الجمعة من 1:00 م)",
+                    ].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() =>
+                          setLocalSettings({
+                            ...localSettings,
+                            workingHours: preset,
+                          })
+                        }
+                        className="text-[10px] px-2.5 py-1 rounded-lg bg-white hover:bg-gold/10 hover:border-gold border border-beige text-brown/80 transition-colors"
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Live Preview */}
+                <div className="p-3 bg-white/80 rounded-xl border border-gold/30 space-y-1">
+                  <span className="text-[10px] text-brown/60 block font-bold">
+                    معاينة شكل الظهور للعملاء:
+                  </span>
+                  <div className="flex items-center gap-2 text-xs font-bold text-brown">
+                    <Clock className="w-3.5 h-3.5 text-gold shrink-0" />
+                    <span>{localSettings.workingHours || "لم يتم تحديد وقت العمل بعد"}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Phones & WhatsApp */}
               <div className="space-y-4 p-5 rounded-2xl bg-cream/30 border border-beige">
                 <h3 className="font-extrabold text-sm text-brown flex items-center gap-2">
@@ -1184,27 +1258,46 @@ export default function AdminPage() {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-brown block">
-                    رابط الخريطة / جوجل ماب:
-                  </label>
-                  <input
-                    type="text"
-                    value={localSettings.mapUrl}
-                    onChange={(e) =>
-                      setLocalSettings({
-                        ...localSettings,
-                        mapUrl: e.target.value,
-                      })
-                    }
-                    className="w-full text-xs p-3 rounded-xl border border-beige bg-white font-mono"
-                    dir="ltr"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-brown block">
+                      عنوان وموقع المحل:
+                    </label>
+                    <input
+                      type="text"
+                      value={localSettings.address || ""}
+                      onChange={(e) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          address: e.target.value,
+                        })
+                      }
+                      placeholder="المملكة العربية السعودية"
+                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-brown block">
+                      رابط الخريطة / جوجل ماب:
+                    </label>
+                    <input
+                      type="text"
+                      value={localSettings.mapUrl}
+                      onChange={(e) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          mapUrl: e.target.value,
+                        })
+                      }
+                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white font-mono"
+                      dir="ltr"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Announcement Bar */}
-              <div className="space-y-4 p-5 rounded-2xl bg-cream/30 border border-beige">
+              <div className="md:col-span-2 space-y-4 p-5 rounded-2xl bg-cream/30 border border-beige">
                 <h3 className="font-extrabold text-sm text-brown flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-gold" />
                   <span>الشريط الإعلاني العلوي</span>
