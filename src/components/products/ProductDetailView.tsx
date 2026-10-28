@@ -32,6 +32,46 @@ export default function ProductDetailView({ productId }: { productId: string }) 
   const [notes, setNotes] = useState("");
   const [addedToast, setAddedToast] = useState(false);
 
+  const hasKilo = typeof product?.pricePerKilo === "number" && product.pricePerKilo > 0;
+  const hasBox = typeof product?.pricePerBox === "number" && product.pricePerBox > 0;
+  const hasMultipleUnits = hasKilo && hasBox;
+
+  const [selectedUnitType, setSelectedUnitType] = useState<"kilo" | "box">(
+    hasKilo ? "kilo" : "box"
+  );
+
+  const activePrice = hasMultipleUnits
+    ? selectedUnitType === "kilo"
+      ? product?.pricePerKilo
+      : product?.pricePerBox
+    : hasKilo
+    ? product?.pricePerKilo
+    : hasBox
+    ? product?.pricePerBox
+    : product?.price;
+
+  const activeUnitLabel = hasMultipleUnits
+    ? selectedUnitType === "kilo"
+      ? "كغم"
+      : "صندوق"
+    : hasKilo
+    ? "كغم"
+    : hasBox
+    ? "صندوق"
+    : product?.unit || "حبة";
+
+  const unitOptionName = hasMultipleUnits
+    ? selectedUnitType === "kilo"
+      ? "بالكيلو"
+      : "بالصندوق"
+    : hasKilo
+    ? "بالكيلو"
+    : hasBox
+    ? "بالصندوق"
+    : undefined;
+
+  const fullOption = [unitOptionName, selectedOption].filter(Boolean).join(" - ") || undefined;
+
   if (!product) {
     return (
       <div className="py-20 text-center bg-cream min-h-screen">
@@ -59,17 +99,18 @@ export default function ProductDetailView({ productId }: { productId: string }) 
     .slice(0, 3);
 
   const handleAddToCart = () => {
-    addToCart(product, quantity, selectedOption, notes);
+    addToCart(product, quantity, fullOption, notes, activePrice, activeUnitLabel);
     setAddedToast(true);
     setTimeout(() => setAddedToast(false), 2000);
   };
 
   const directWhatsappUrl = `https://wa.me/${settings.primaryWhatsapp}?text=${encodeURIComponent(
     `مرحباً حلويات حبات الشهد 🌸\nأود طلب صنف:\n*${product.name}*\n` +
+      (unitOptionName ? `طريقة الشراء: ${unitOptionName}\n` : "") +
       (selectedOption ? `الخيار / الحجم: ${selectedOption}\n` : "") +
-      `الكمية: ${quantity}\n` +
+      `الكمية: ${quantity} ${activeUnitLabel}\n` +
       (notes ? `ملاحظات: ${notes}\n` : "") +
-      (product.price ? `السعر التقديري: ${product.price * quantity} ر.س\n` : "") +
+      (activePrice ? `السعر الإجمالي: ${activePrice * quantity} ر.س\n` : "") +
       `أرجو التكرم بالتأكيد وموعد الاستلام / التوصيل.`
   )}`;
 
@@ -173,17 +214,69 @@ export default function ProductDetailView({ productId }: { productId: string }) 
                 {product.name}
               </h1>
 
-              {/* Price */}
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-brown-dark font-mono">
-                  {product.price ? `${product.price}` : "حسب الوزن"}
-                </span>
-                {product.price && (
-                  <span className="text-sm font-bold text-gold-dark">ر.س</span>
+              {/* Price & Unit Selection */}
+              <div className="space-y-4">
+                {/* Unit selector when both kilo & box are available */}
+                {hasMultipleUnits && (
+                  <div className="space-y-2 p-3.5 bg-cream/70 rounded-2xl border border-beige">
+                    <label className="text-xs font-bold text-brown block">
+                      طريقة الشراء والوحدة:
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedUnitType("kilo")}
+                        className={`py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all border flex items-center justify-between ${
+                          selectedUnitType === "kilo"
+                            ? "bg-brown text-cream-light border-brown shadow-sm"
+                            : "bg-white text-brown border-beige hover:bg-beige/40"
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span>⚖️</span>
+                          <span>بالكيلو (كغم)</span>
+                        </span>
+                        <span className="font-mono font-black">{product.pricePerKilo} ر.س</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedUnitType("box")}
+                        className={`py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all border flex items-center justify-between ${
+                          selectedUnitType === "box"
+                            ? "bg-brown text-cream-light border-brown shadow-sm"
+                            : "bg-white text-brown border-beige hover:bg-beige/40"
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span>📦</span>
+                          <span>بالصندوق</span>
+                        </span>
+                        <span className="font-mono font-black">{product.pricePerBox} ر.س</span>
+                      </button>
+                    </div>
+                  </div>
                 )}
-                <span className="text-xs text-brown/60 mr-2 bg-cream px-2 py-1 rounded-md border border-beige">
-                  {product.unit}
-                </span>
+
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl sm:text-4xl font-black text-brown-dark font-mono">
+                    {activePrice ? `${activePrice}` : "حسب الطلب"}
+                  </span>
+                  {activePrice && (
+                    <span className="text-sm font-bold text-gold-dark">ر.س</span>
+                  )}
+                  <span className="text-xs text-brown/70 mr-2 bg-cream px-2.5 py-1 rounded-md border border-beige font-bold">
+                    {hasMultipleUnits
+                      ? selectedUnitType === "kilo"
+                        ? "سعر الكيلو (كغم)"
+                        : "سعر الصندوق"
+                      : hasKilo
+                      ? "سعر الكيلو (كغم)"
+                      : hasBox
+                      ? "سعر الصندوق"
+                      : product.unit}
+                  </span>
+                </div>
               </div>
 
               {/* Description */}
@@ -240,11 +333,11 @@ export default function ProductDetailView({ productId }: { productId: string }) 
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
-                  {product.price && (
+                  {activePrice && (
                     <span className="text-sm text-brown/70 font-medium">
                       الإجمالي:{" "}
                       <strong className="text-brown-dark font-mono text-base">
-                        {product.price * quantity} ر.س
+                        {activePrice * quantity} ر.س
                       </strong>
                     </span>
                   )}

@@ -138,13 +138,27 @@ export default function SearchModal() {
                       <p className="text-xs text-brown/60 truncate max-w-sm">
                         {product.description}
                       </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[11px] font-bold text-gold-dark">
-                          {product.price ? `${product.price} ر.س` : "حسب الوزن"}
-                        </span>
-                        <span className="text-[10px] text-brown/40">
-                          {product.unit}
-                        </span>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        {product.pricePerKilo ? (
+                          <span className="text-[11px] font-bold text-gold-dark bg-gold/10 px-2 py-0.5 rounded">
+                            ⚖️ الكيلو: {product.pricePerKilo} ر.س
+                          </span>
+                        ) : null}
+                        {product.pricePerBox ? (
+                          <span className="text-[11px] font-bold text-brown bg-cream px-2 py-0.5 rounded border border-beige">
+                            📦 الصندوق: {product.pricePerBox} ر.س
+                          </span>
+                        ) : null}
+                        {!product.pricePerKilo && !product.pricePerBox && (
+                          <>
+                            <span className="text-[11px] font-bold text-gold-dark">
+                              {product.price ? `${product.price} ر.س` : "حسب الطلب"}
+                            </span>
+                            <span className="text-[10px] text-brown/40">
+                              {product.unit}
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

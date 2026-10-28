@@ -5,7 +5,14 @@ import { CartItem, Product } from "@/types";
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product, quantity?: number, selectedOption?: string, notes?: string) => void;
+  addToCart: (
+    product: Product,
+    quantity?: number,
+    selectedOption?: string,
+    notes?: string,
+    customPrice?: number,
+    customUnit?: string
+  ) => void;
   removeFromCart: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -61,8 +68,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     product: Product,
     quantity = 1,
     selectedOption?: string,
-    notes?: string
+    notes?: string,
+    customPrice?: number,
+    customUnit?: string
   ) => {
+    const effectivePrice =
+      customPrice !== undefined
+        ? customPrice
+        : selectedOption === "بالكيلو" && product.pricePerKilo
+        ? product.pricePerKilo
+        : selectedOption === "بالصندوق" && product.pricePerBox
+        ? product.pricePerBox
+        : product.price;
+
+    const effectiveUnit =
+      customUnit ||
+      (selectedOption === "بالكيلو"
+        ? "كغم"
+        : selectedOption === "بالصندوق"
+        ? "صندوق"
+        : product.unit);
+
     const itemId = `${product.id}-${selectedOption || "default"}`;
     setItems((prev) => {
       const existing = prev.find((item) => item.id === itemId);
@@ -79,12 +105,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           id: itemId,
           productId: product.id,
           name: product.name,
-          price: product.price,
+          price: effectivePrice,
           quantity,
           selectedOption,
           notes,
           image: product.image,
-          unit: product.unit,
+          unit: effectiveUnit,
         },
       ];
     });

@@ -51,7 +51,9 @@ export const initialProducts: Product[] = [
     name: "بسبوسة كلاسيكية",
     category: "basbousa",
     price: 45,
-    unit: "طبق / كغم",
+    pricePerKilo: 45,
+    pricePerBox: 80,
+    unit: "كغم / صندوق",
     description:
       "بسبوسة ذهبية هشة محضرة على الطريقة التقليدية بأجود أنواع السمن البلدي والشيرة النقية المتوازنة.",
     image: "/images/basbousa.jpg",
@@ -70,7 +72,9 @@ export const initialProducts: Product[] = [
     name: "بسبوسة قشطة",
     category: "basbousa",
     price: 55,
-    unit: "طبق / كغم",
+    pricePerKilo: 55,
+    pricePerBox: 95,
+    unit: "كغم / صندوق",
     description:
       "طبقات من البسبوسة الذهبية تتوسطها قشطة طازجة غنية وناعمة، تمنحك توازناً ممتعاً بين الحلاوة والنعومة.",
     image: "/images/basbousa-qeshta.jpg",
@@ -89,7 +93,9 @@ export const initialProducts: Product[] = [
     name: "كنافة مبرومة",
     category: "kunafa",
     price: 60,
-    unit: "طبق / كغم",
+    pricePerKilo: 60,
+    pricePerBox: 110,
+    unit: "كغم / صندوق",
     description:
       "كنافة رول مقرمشة ومحمرة بدرجة ذهبية مثالية، متبلة بالسمن الفاخر ومحشية بعناية لمحبي القرمشة الشرقية.",
     image: "/images/kunafa.jpg",
@@ -108,7 +114,9 @@ export const initialProducts: Product[] = [
     name: "رموش الست",
     category: "oriental",
     price: 50,
-    unit: "طبق / كغم",
+    pricePerKilo: 50,
+    pricePerBox: 90,
+    unit: "كغم / صندوق",
     description:
       "حلوى رموش الست الشهية التي تذوب في الفم، مخبوزة حتى اللون الذهبي المتألق ومشبعة بالشيرة الخفيفة.",
     image: "/images/rosh-el-sett.jpg",

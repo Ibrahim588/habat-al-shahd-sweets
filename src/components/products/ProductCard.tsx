@@ -23,16 +23,57 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { settings } = useStore();
   const [addedAnimation, setAddedAnimation] = useState(false);
 
+  const hasKilo = typeof product.pricePerKilo === "number" && product.pricePerKilo > 0;
+  const hasBox = typeof product.pricePerBox === "number" && product.pricePerBox > 0;
+  const hasMultipleUnits = hasKilo && hasBox;
+
+  const [selectedUnitType, setSelectedUnitType] = useState<"kilo" | "box">(
+    hasKilo ? "kilo" : "box"
+  );
+
+  const currentPrice = hasMultipleUnits
+    ? selectedUnitType === "kilo"
+      ? product.pricePerKilo
+      : product.pricePerBox
+    : hasKilo
+    ? product.pricePerKilo
+    : hasBox
+    ? product.pricePerBox
+    : product.price;
+
+  const currentUnitLabel = hasMultipleUnits
+    ? selectedUnitType === "kilo"
+      ? "كغم"
+      : "صندوق"
+    : hasKilo
+    ? "كغم"
+    : hasBox
+    ? "صندوق"
+    : product.unit;
+
+  const currentOptionName = hasMultipleUnits
+    ? selectedUnitType === "kilo"
+      ? "بالكيلو"
+      : "بالصندوق"
+    : hasKilo
+    ? "بالكيلو"
+    : hasBox
+    ? "بالصندوق"
+    : undefined;
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product, 1);
+    addToCart(product, 1, currentOptionName, undefined, currentPrice, currentUnitLabel);
     setAddedAnimation(true);
     setTimeout(() => setAddedAnimation(false), 1200);
   };
 
   const directWhatsappUrl = `https://wa.me/${settings.primaryWhatsapp}?text=${encodeURIComponent(
-    `مرحباً حلويات حبات الشهد 🌸 أود طلب: *${product.name}* (${product.price ? `${product.price} ر.س / ${product.unit}` : product.unit}). أرجو التكرم بالتأكيد.`
+    `مرحباً حلويات حبات الشهد 🌸 أود طلب: *${product.name}*` +
+      (currentOptionName ? ` (${currentOptionName})` : "") +
+      (currentPrice ? ` - السعر: ${currentPrice} ر.س / ${currentUnitLabel}` : ` (${currentUnitLabel})`) +
+      `. أرجو التكرم بالتأكيد.`
   )}`;
 
   return (
@@ -95,17 +136,55 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Pricing & Actions */}
         <div className="pt-3 border-t border-beige/60 space-y-3">
+          {/* Multiple Unit Selector if both kilo & box are available */}
+          {hasMultipleUnits && (
+            <div className="flex items-center gap-1.5 p-1 bg-cream rounded-xl border border-beige">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedUnitType("kilo");
+                }}
+                className={`flex-1 py-1 px-2 rounded-lg text-[11px] font-bold transition-all text-center flex items-center justify-center gap-1 ${
+                  selectedUnitType === "kilo"
+                    ? "bg-brown text-cream-light shadow-sm"
+                    : "text-brown/70 hover:text-brown"
+                }`}
+              >
+                <span>⚖️ بالكيلو</span>
+                <span className="font-mono">({product.pricePerKilo} ر.س)</span>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedUnitType("box");
+                }}
+                className={`flex-1 py-1 px-2 rounded-lg text-[11px] font-bold transition-all text-center flex items-center justify-center gap-1 ${
+                  selectedUnitType === "box"
+                    ? "bg-brown text-cream-light shadow-sm"
+                    : "text-brown/70 hover:text-brown"
+                }`}
+              >
+                <span>📦 بالصندوق</span>
+                <span className="font-mono">({product.pricePerBox} ر.س)</span>
+              </button>
+            </div>
+          )}
+
           <div className="flex items-baseline justify-between">
             <div className="flex items-baseline gap-1">
               <span className="text-xl sm:text-2xl font-black text-brown-dark font-mono">
-                {product.price ? `${product.price}` : "حسب الطلب"}
+                {currentPrice ? `${currentPrice}` : "حسب الطلب"}
               </span>
-              {product.price && (
+              {currentPrice && (
                 <span className="text-xs font-bold text-gold-dark">ر.س</span>
               )}
             </div>
-            <span className="text-[11px] text-brown/60 bg-cream px-2 py-0.5 rounded-md border border-beige">
-              {product.unit}
+            <span className="text-[11px] text-brown/70 bg-cream px-2 py-0.5 rounded-md border border-beige font-medium">
+              {currentUnitLabel}
             </span>
           </div>
 

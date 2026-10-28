@@ -1,21 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useStore } from "@/context/StoreContext";
 import { Camera, Maximize2, X, ChevronLeft } from "lucide-react";
 
+const defaultGalleryItems = [
+  { id: "kunafa", src: "/images/kunafa.jpg", title: "كنافة مبرومة رول" },
+  { id: "basbousa", src: "/images/basbousa.jpg", title: "بسبوسة كلاسيكية ذهبية" },
+  { id: "rosh-el-sett", src: "/images/rosh-el-sett.jpg", title: "رموش الست الهشة" },
+  { id: "basbousa-qeshta", src: "/images/basbousa-qeshta.jpg", title: "بسبوسة محشية بالقشطة" },
+  { id: "baseema", src: "/images/baseema.jpg", title: "بسيمة جوز الهند الأصيلة" },
+  { id: "sabaat", src: "/images/sabaat.jpg", title: "صباعات جلاش مقرمشة" },
+];
+
 export default function GalleryPreviewSection() {
+  const { products } = useStore();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const galleryItems = [
-    { src: "/images/kunafa.jpg", title: "كنافة مبرومة رول" },
-    { src: "/images/basbousa.jpg", title: "بسبوسة كلاسيكية ذهبية" },
-    { src: "/images/rosh-el-sett.jpg", title: "رموش الست الهشة" },
-    { src: "/images/basbousa-qeshta.jpg", title: "بسبوسة محشية بالقشطة" },
-    { src: "/images/baseema.jpg", title: "بسيمة جوز الهند الأصيلة" },
-    { src: "/images/sabaat.jpg", title: "صباعات جلاش مقرمشة" },
-  ];
+  const galleryItems = useMemo(() => {
+    if (products && products.length > 0) {
+      const withImages = products.filter((p) => Boolean(p.image));
+      const featured = withImages.filter((p) => p.isFeatured);
+      const chosen = featured.length >= 6 ? featured.slice(0, 6) : withImages.slice(0, 6);
+      return chosen.map((p) => ({
+        id: p.id,
+        src: p.image,
+        title: p.name,
+      }));
+    }
+    return defaultGalleryItems;
+  }, [products]);
 
   return (
     <>
@@ -44,7 +60,7 @@ export default function GalleryPreviewSection() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {galleryItems.map((item, idx) => (
               <div
-                key={idx}
+                key={item.id || idx}
                 onClick={() => setSelectedImage(item.src)}
                 className="group relative aspect-square rounded-3xl overflow-hidden bg-white cursor-pointer border border-beige/80 luxury-card-shadow luxury-card-shadow-hover"
               >
@@ -54,6 +70,7 @@ export default function GalleryPreviewSection() {
                   fill
                   sizes="(max-width: 640px) 50vw, 33vw"
                   className="object-cover group-hover:scale-108 transition-transform duration-500"
+                  unoptimized={item.src?.startsWith("http")}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 text-white">
                   <div className="flex items-center justify-between">
@@ -91,6 +108,7 @@ export default function GalleryPreviewSection() {
               alt="صورة مكبرة"
               fill
               className="object-contain"
+              unoptimized={selectedImage.startsWith("http")}
             />
           </div>
         </div>

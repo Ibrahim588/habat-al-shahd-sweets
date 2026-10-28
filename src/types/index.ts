@@ -3,6 +3,8 @@ export interface Product {
   name: string;
   category: string;
   price?: number;
+  pricePerKilo?: number;
+  pricePerBox?: number;
   unit: string;
   description: string;
   image: string;

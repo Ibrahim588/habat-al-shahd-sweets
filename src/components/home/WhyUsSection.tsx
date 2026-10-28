@@ -2,9 +2,23 @@
 
 import React from "react";
 import Image from "next/image";
+import { useStore } from "@/context/StoreContext";
 import { CheckCircle, ChefHat } from "lucide-react";
 
 export default function WhyUsSection() {
+  const { products } = useStore();
+
+  const getProductImage = (idOrCategory: string, fallback: string) => {
+    const prod = products.find(
+      (p) => p.id === idOrCategory || p.category === idOrCategory
+    );
+    return prod?.image || fallback;
+  };
+
+  const imgBasbousa = getProductImage("basbousa", "/images/basbousa.jpg");
+  const imgKunafa = getProductImage("kunafa", "/images/kunafa.jpg");
+  const imgRosh = getProductImage("rosh-el-sett", "/images/rosh-el-sett.jpg");
+  const imgSabaat = getProductImage("sabaat", "/images/sabaat.jpg");
   const points = [
     {
       title: "العناية الفائقة بالتفاصيل",
@@ -32,38 +46,42 @@ export default function WhyUsSection() {
           <div className="lg:col-span-5 grid grid-cols-2 gap-4">
             <div className="relative aspect-square rounded-3xl overflow-hidden shadow-lg border border-beige">
               <Image
-                src="/images/basbousa.jpg"
+                src={imgBasbousa}
                 alt="بسبوسة حبات الشهد"
                 fill
                 sizes="(max-width: 640px) 50vw, 25vw"
                 className="object-cover"
+                unoptimized={imgBasbousa.startsWith("http")}
               />
             </div>
             <div className="relative aspect-square rounded-3xl overflow-hidden shadow-lg border border-beige translate-y-4">
               <Image
-                src="/images/kunafa.jpg"
+                src={imgKunafa}
                 alt="كنافة حبات الشهد"
                 fill
                 sizes="(max-width: 640px) 50vw, 25vw"
                 className="object-cover"
+                unoptimized={imgKunafa.startsWith("http")}
               />
             </div>
             <div className="relative aspect-square rounded-3xl overflow-hidden shadow-lg border border-beige">
               <Image
-                src="/images/rosh-el-sett.jpg"
+                src={imgRosh}
                 alt="رموش الست حبات الشهد"
                 fill
                 sizes="(max-width: 640px) 50vw, 25vw"
                 className="object-cover"
+                unoptimized={imgRosh.startsWith("http")}
               />
             </div>
             <div className="relative aspect-square rounded-3xl overflow-hidden shadow-lg border border-beige translate-y-4">
               <Image
-                src="/images/sabaat.jpg"
+                src={imgSabaat}
                 alt="صباعات حبات الشهد"
                 fill
                 sizes="(max-width: 640px) 50vw, 25vw"
                 className="object-cover"
+                unoptimized={imgSabaat.startsWith("http")}
               />
             </div>
           </div>

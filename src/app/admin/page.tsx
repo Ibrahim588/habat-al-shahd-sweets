@@ -68,8 +68,10 @@ export default function AdminPage() {
   const [newProduct, setNewProduct] = useState({
     name: "",
     category: categories[0]?.id || "basbousa",
-    price: 50,
-    unit: "طبق / كغم",
+    price: 0,
+    pricePerKilo: "" as string | number,
+    pricePerBox: "" as string | number,
+    unit: "كغم / صندوق",
     description: "",
     image: "",
     isFeatured: false,
@@ -491,36 +493,91 @@ export default function AdminPage() {
                       ))}
                     </select>
                   </div>
+                </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-brown block">
-                      السعر (ر.س)
-                    </label>
-                    <input
-                      type="number"
-                      value={newProduct.price}
-                      onChange={(e) =>
-                        setNewProduct({
-                          ...newProduct,
-                          price: Number(e.target.value),
-                        })
-                      }
-                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold font-mono"
-                    />
+                {/* Pricing Options: Kilo & Box */}
+                <div className="p-4 rounded-2xl bg-cream/50 border border-beige space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <span className="text-xs font-bold text-brown flex items-center gap-1.5">
+                      <Tags className="w-3.5 h-3.5 text-gold-dark" />
+                      <span>خيارات وأسعار البيع (بالكيلو / بالصندوق)</span>
+                    </span>
+                    <span className="text-[10px] text-brown/60">
+                      اترك الحقل فارغاً إذا كان الصنف لا يُباع بتلك الوحدة
+                    </span>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-brown block">
-                      الوحدة
-                    </label>
-                    <input
-                      type="text"
-                      value={newProduct.unit}
-                      onChange={(e) =>
-                        setNewProduct({ ...newProduct, unit: e.target.value })
-                      }
-                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-brown block">
+                        ⚖️ سعر الكيلو (ر.س):
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="مثال: 60 (اتركه فارغاً إن لم يتوفر)"
+                        value={newProduct.pricePerKilo}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            pricePerKilo: e.target.value === "" ? "" : Number(e.target.value),
+                          })
+                        }
+                        className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold font-mono"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-brown block">
+                        📦 سعر الصندوق (ر.س):
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="مثال: 100 (اتركه فارغاً إن لم يتوفر)"
+                        value={newProduct.pricePerBox}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            pricePerBox: e.target.value === "" ? "" : Number(e.target.value),
+                          })
+                        }
+                        className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-beige/60">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-brown/80 block">
+                        سعر عام / ثابت (اختياري للقطعة):
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="سعر افتراضي بديل إن وجد"
+                        value={newProduct.price || ""}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            price: e.target.value === "" ? 0 : Number(e.target.value),
+                          })
+                        }
+                        className="w-full text-xs p-2.5 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold font-mono"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-brown/80 block">
+                        نص الوحدة الافتراضية:
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="مثال: كغم / صندوق"
+                        value={newProduct.unit}
+                        onChange={(e) =>
+                          setNewProduct({ ...newProduct, unit: e.target.value })
+                        }
+                        className="w-full text-xs p-2.5 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -651,16 +708,34 @@ export default function AdminPage() {
                       return;
                     }
                     const finalImage = newProduct.image.trim() || "/images/basbousa.jpg";
+                    const pk =
+                      newProduct.pricePerKilo !== "" && !isNaN(Number(newProduct.pricePerKilo))
+                        ? Number(newProduct.pricePerKilo)
+                        : undefined;
+                    const pb =
+                      newProduct.pricePerBox !== "" && !isNaN(Number(newProduct.pricePerBox))
+                        ? Number(newProduct.pricePerBox)
+                        : undefined;
+                    const pBase =
+                      Number(newProduct.price) > 0
+                        ? Number(newProduct.price)
+                        : pk || pb || 0;
+
                     const ok = await addProduct({
                       ...newProduct,
+                      price: pBase,
+                      pricePerKilo: pk,
+                      pricePerBox: pb,
                       image: finalImage,
                     });
                     const createdName = newProduct.name;
                     setNewProduct({
                       name: "",
                       category: categories[0]?.id || "basbousa",
-                      price: 50,
-                      unit: "طبق / كغم",
+                      price: 0,
+                      pricePerKilo: "",
+                      pricePerBox: "",
+                      unit: "كغم / صندوق",
                       description: "",
                       image: "",
                       isFeatured: false,
@@ -728,36 +803,94 @@ export default function AdminPage() {
                       ))}
                     </select>
                   </div>
+                </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-brown block">
-                      السعر (ر.س)
-                    </label>
-                    <input
-                      type="number"
-                      value={editingProduct.price || 0}
-                      onChange={(e) =>
-                        setEditingProduct({
-                          ...editingProduct,
-                          price: Number(e.target.value),
-                        })
-                      }
-                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold font-mono"
-                    />
+                {/* Edit Pricing Options: Kilo & Box */}
+                <div className="p-4 rounded-2xl bg-cream/50 border border-beige space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <span className="text-xs font-bold text-brown flex items-center gap-1.5">
+                      <Tags className="w-3.5 h-3.5 text-gold-dark" />
+                      <span>خيارات وأسعار البيع (بالكيلو / بالصندوق)</span>
+                    </span>
+                    <span className="text-[10px] text-brown/60">
+                      اترك الحقل فارغاً إذا كان الصنف لا يُباع بتلك الوحدة
+                    </span>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-brown block">
-                      الوحدة
-                    </label>
-                    <input
-                      type="text"
-                      value={editingProduct.unit}
-                      onChange={(e) =>
-                        setEditingProduct({ ...editingProduct, unit: e.target.value })
-                      }
-                      className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-brown block">
+                        ⚖️ سعر الكيلو (ر.س):
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="مثال: 60 (اتركه فارغاً إن لم يتوفر)"
+                        value={editingProduct.pricePerKilo ?? ""}
+                        onChange={(e) =>
+                          setEditingProduct({
+                            ...editingProduct,
+                            pricePerKilo:
+                              e.target.value === "" ? undefined : Number(e.target.value),
+                          })
+                        }
+                        className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold font-mono"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-brown block">
+                        📦 سعر الصندوق (ر.س):
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="مثال: 100 (اتركه فارغاً إن لم يتوفر)"
+                        value={editingProduct.pricePerBox ?? ""}
+                        onChange={(e) =>
+                          setEditingProduct({
+                            ...editingProduct,
+                            pricePerBox:
+                              e.target.value === "" ? undefined : Number(e.target.value),
+                          })
+                        }
+                        className="w-full text-xs p-3 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-beige/60">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-brown/80 block">
+                        سعر عام / ثابت (اختياري للقطعة):
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="سعر افتراضي بديل"
+                        value={editingProduct.price || ""}
+                        onChange={(e) =>
+                          setEditingProduct({
+                            ...editingProduct,
+                            price:
+                              e.target.value === "" ? undefined : Number(e.target.value),
+                          })
+                        }
+                        className="w-full text-xs p-2.5 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold font-mono"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-brown/80 block">
+                        نص الوحدة الافتراضية:
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="مثال: كغم / صندوق"
+                        value={editingProduct.unit}
+                        onChange={(e) =>
+                          setEditingProduct({ ...editingProduct, unit: e.target.value })
+                        }
+                        className="w-full text-xs p-2.5 rounded-xl border border-beige bg-white focus:outline-none focus:border-gold"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -931,8 +1064,24 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="p-3 text-brown/80">{cat?.name || p.category}</td>
-                        <td className="p-3 font-mono font-bold text-brown">
-                          {p.price ? `${p.price} ر.س` : "حسب الوزن"}
+                        <td className="p-3">
+                          <div className="space-y-0.5">
+                            {p.pricePerKilo ? (
+                              <div className="text-xs font-bold text-brown whitespace-nowrap">
+                                ⚖️ الكيلو: <span className="font-mono text-gold-dark">{p.pricePerKilo}</span> ر.س
+                              </div>
+                            ) : null}
+                            {p.pricePerBox ? (
+                              <div className="text-xs font-bold text-brown whitespace-nowrap">
+                                📦 الصندوق: <span className="font-mono text-gold-dark">{p.pricePerBox}</span> ر.س
+                              </div>
+                            ) : null}
+                            {!p.pricePerKilo && !p.pricePerBox && (
+                              <span className="text-xs font-mono font-bold text-brown">
+                                {p.price ? `${p.price} ر.س` : "حسب الطلب"}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="p-3 text-center">
                           <button

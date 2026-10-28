@@ -7,23 +7,30 @@ import { useStore } from "@/context/StoreContext";
 import { Gift, MessageCircle, HeartHandshake } from "lucide-react";
 
 export default function OccasionsSection() {
-  const { settings } = useStore();
+  const { settings, products } = useStore();
+
+  const getProductImage = (idOrCategory: string, fallback: string) => {
+    const prod = products.find(
+      (p) => p.id === idOrCategory || p.category === idOrCategory
+    );
+    return prod?.image || fallback;
+  };
 
   const occasions = [
     {
       title: "صواني الضيافة والأعراس",
       desc: "تنسيق مخصص لصواني الحلويات الشرقية المشكلة والفاخرة بأحجام تلائم كافة مناسباتكم الكبرى.",
-      image: "/images/kunafa.jpg",
+      image: getProductImage("kunafa", "/images/kunafa.jpg"),
     },
     {
       title: "بوكسات الجمعات والعائلات",
       desc: "تشكيلات بسبوسة وكنافة وقشطة طازجة مرتبة بطريقة أنيقة ومريحة للمشاركة في الجمعات.",
-      image: "/images/basbousa-qeshta.jpg",
+      image: getProductImage("basbousa-qeshta", "/images/basbousa-qeshta.jpg"),
     },
     {
       title: "ضيافة القهوة والشاي",
       desc: "أصناف روش الست والصباعات والبسيمة المحضرة بحجم لقمة واحدة لترافق فنجان القهوة الأصيل.",
-      image: "/images/rosh-el-sett.jpg",
+      image: getProductImage("rosh-el-sett", "/images/rosh-el-sett.jpg"),
     },
   ];
 
@@ -57,6 +64,7 @@ export default function OccasionsSection() {
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  unoptimized={occ.image.startsWith("http")}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
               </div>
