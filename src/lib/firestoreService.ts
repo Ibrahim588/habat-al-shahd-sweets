@@ -21,6 +21,21 @@ const SETTINGS_COLLECTION = "settings";
 const SETTINGS_DOC_ID = "site";
 const INQUIRIES_COLLECTION = "inquiries";
 
+// Helper to remove any undefined fields before sending to Firestore
+// Firestore crashes if any document field is undefined
+export function sanitizeForFirestore<T extends Record<string, any>>(data: T): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) continue;
+    if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+      result[key] = sanitizeForFirestore(value);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 // ==========================================
 // PRODUCTS
 // ==========================================
@@ -44,10 +59,11 @@ export async function saveProductToFirestore(product: Product): Promise<boolean>
   try {
     const docRef = doc(db, PRODUCTS_COLLECTION, product.id);
     const { id, ...data } = product;
-    await setDoc(docRef, data, { merge: true });
+    const cleanData = sanitizeForFirestore(data);
+    await setDoc(docRef, cleanData, { merge: true });
     return true;
   } catch (error) {
-    console.warn("Firestore product save failed:", error);
+    console.error("Firestore product save failed:", error);
     return false;
   }
 }
@@ -57,7 +73,7 @@ export async function deleteProductFromFirestore(id: string): Promise<boolean> {
     await deleteDoc(doc(db, PRODUCTS_COLLECTION, id));
     return true;
   } catch (error) {
-    console.warn("Firestore product delete failed:", error);
+    console.error("Firestore product delete failed:", error);
     return false;
   }
 }
@@ -85,10 +101,11 @@ export async function saveCategoryToFirestore(category: Category): Promise<boole
   try {
     const docRef = doc(db, CATEGORIES_COLLECTION, category.id);
     const { id, ...data } = category;
-    await setDoc(docRef, data, { merge: true });
+    const cleanData = sanitizeForFirestore(data);
+    await setDoc(docRef, cleanData, { merge: true });
     return true;
   } catch (error) {
-    console.warn("Firestore category save failed:", error);
+    console.error("Firestore category save failed:", error);
     return false;
   }
 }
@@ -98,7 +115,7 @@ export async function deleteCategoryFromFirestore(id: string): Promise<boolean> 
     await deleteDoc(doc(db, CATEGORIES_COLLECTION, id));
     return true;
   } catch (error) {
-    console.warn("Firestore category delete failed:", error);
+    console.error("Firestore category delete failed:", error);
     return false;
   }
 }
@@ -122,10 +139,11 @@ export async function fetchSettingsFromFirestore(): Promise<SiteSettings | null>
 export async function saveSettingsToFirestore(settings: SiteSettings): Promise<boolean> {
   try {
     const docRef = doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID);
-    await setDoc(docRef, settings, { merge: true });
+    const cleanData = sanitizeForFirestore(settings);
+    await setDoc(docRef, cleanData, { merge: true });
     return true;
   } catch (error) {
-    console.warn("Firestore settings save failed:", error);
+    console.error("Firestore settings save failed:", error);
     return false;
   }
 }
@@ -137,10 +155,11 @@ export async function saveSettingsToFirestore(settings: SiteSettings): Promise<b
 export async function saveInquiryToFirestore(inquiry: Inquiry): Promise<boolean> {
   try {
     const docRef = doc(db, INQUIRIES_COLLECTION, inquiry.id);
-    await setDoc(docRef, inquiry);
+    const cleanData = sanitizeForFirestore(inquiry);
+    await setDoc(docRef, cleanData);
     return true;
   } catch (error) {
-    console.warn("Firestore inquiry save failed:", error);
+    console.error("Firestore inquiry save failed:", error);
     return false;
   }
 }
@@ -223,30 +242,31 @@ export function subscribeToSettings(
 }
 
 // ==========================================
-// SEED / SYNC INITIAL DATA TO FIRESTORE
+// SEED / SYNC STORE DATA TO FIRESTORE
 // ==========================================
 
-export async function syncInitialDataToFirestore(): Promise<{
+export async function syncStoreDataToFirestore(
+  productsToSync: Product[] = initialProducts,
+  categoriesToSync: Category[] = initialCategories,
+  settingsToSync: SiteSettings = initialSiteSettings
+): Promise<{
   success: boolean;
   message: string;
 }> {
   try {
-    // 1. Upload initial categories
-    for (const cat of initialCategories) {
+    for (const cat of categoriesToSync) {
       await saveCategoryToFirestore(cat);
     }
 
-    // 2. Upload initial products
-    for (const prod of initialProducts) {
+    for (const prod of productsToSync) {
       await saveProductToFirestore(prod);
     }
 
-    // 3. Upload initial site settings
-    await saveSettingsToFirestore(initialSiteSettings);
+    await saveSettingsToFirestore(settingsToSync);
 
     return {
       success: true,
-      message: `تم رفع ${initialProducts.length} صنف و ${initialCategories.length} تصنيفات وإعدادات الموقع إلى Firebase Firestore بنجاح!`,
+      message: `تم رفع ومزامنة ${productsToSync.length} صنف و ${categoriesToSync.length} تصنيفات وإعدادات الموقع بنجاح إلى Firebase Firestore!`,
     };
   } catch (error: any) {
     return {
@@ -254,4 +274,11 @@ export async function syncInitialDataToFirestore(): Promise<{
       message: `تعذر الرفع إلى Firestore: ${error?.message || "خطأ غير معروف"}`,
     };
   }
+}
+
+export async function syncInitialDataToFirestore(): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  return syncStoreDataToFirestore(initialProducts, initialCategories, initialSiteSettings);
 }

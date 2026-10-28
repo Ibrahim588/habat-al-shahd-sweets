@@ -643,16 +643,17 @@ export default function AdminPage() {
                 </div>
 
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (!newProduct.name.trim()) {
                       alert("يرجى إدخال اسم الصنف أولاً");
                       return;
                     }
                     const finalImage = newProduct.image.trim() || "/images/basbousa.jpg";
-                    addProduct({
+                    const ok = await addProduct({
                       ...newProduct,
                       image: finalImage,
                     });
+                    const createdName = newProduct.name;
                     setNewProduct({
                       name: "",
                       category: categories[0]?.id || "basbousa",
@@ -664,7 +665,11 @@ export default function AdminPage() {
                       isAvailable: true,
                     });
                     setIsAddingProduct(false);
-                    showNotification(`تمت إضافة الصنف "${newProduct.name}" بنجاح!`);
+                    if (ok) {
+                      showNotification(`تمت إضافة الصنف "${createdName}" وحفظه في السحابة بنجاح!`);
+                    } else {
+                      showNotification(`تمت إضافة الصنف "${createdName}" محلياً، تعذر الحفظ السحابي`);
+                    }
                   }}
                   className="bg-brown hover:bg-brown-dark text-cream-light font-bold px-6 py-2.5 rounded-xl text-xs"
                 >
@@ -861,11 +866,16 @@ export default function AdminPage() {
 
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (!editingProduct.name.trim()) return;
-                      updateProduct(editingProduct.id, editingProduct);
+                      const targetName = editingProduct.name;
+                      const ok = await updateProduct(editingProduct.id, editingProduct);
                       setEditingProduct(null);
-                      showNotification(`تم حفظ تعديل الصنف "${editingProduct.name}" بنجاح!`);
+                      if (ok) {
+                        showNotification(`تم حفظ وتحديث بيانات وسعر الصنف "${targetName}" في السحابة بنجاح!`);
+                      } else {
+                        showNotification(`تم حفظ تعديل الصنف "${targetName}" محلياً، تعذر الحفظ السحابي`);
+                      }
                     }}
                     className="bg-brown hover:bg-brown-dark text-cream-light font-bold px-6 py-2.5 rounded-xl text-xs"
                   >
@@ -924,9 +934,9 @@ export default function AdminPage() {
                         </td>
                         <td className="p-3 text-center">
                           <button
-                            onClick={() => {
-                              updateProduct(p.id, { isFeatured: !p.isFeatured });
-                              showNotification("تم تحديث حالة الصنف المميز");
+                            onClick={async () => {
+                              await updateProduct(p.id, { isFeatured: !p.isFeatured });
+                              showNotification("تم تحديث حالة الصنف المميز في السحابة");
                             }}
                             className={`p-1.5 rounded-lg text-xs font-bold ${
                               p.isFeatured
@@ -939,9 +949,9 @@ export default function AdminPage() {
                         </td>
                         <td className="p-3 text-center">
                           <button
-                            onClick={() => {
-                              updateProduct(p.id, { isAvailable: !p.isAvailable });
-                              showNotification("تم تحديث حالة توفر الصنف");
+                            onClick={async () => {
+                              await updateProduct(p.id, { isAvailable: !p.isAvailable });
+                              showNotification("تم تحديث حالة توفر الصنف في السحابة");
                             }}
                             className={`px-2 py-1 rounded-md text-[11px] font-bold ${
                               p.isAvailable
@@ -962,12 +972,12 @@ export default function AdminPage() {
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => {
+                              onClick={async () => {
                                 if (
                                   confirm(`هل أنت متأكد من حذف صنف "${p.name}"؟`)
                                 ) {
-                                  deleteProduct(p.id);
-                                  showNotification("تم حذف الصنف بنجاح!");
+                                  await deleteProduct(p.id);
+                                  showNotification("تم حذف الصنف بنجاح من السحابة!");
                                 }
                               }}
                               className="p-1.5 rounded-lg hover:bg-red-50 text-red-600"
@@ -1042,16 +1052,16 @@ export default function AdminPage() {
                 </div>
                 <div className="flex gap-2 pt-2">
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (!newCategory.name.trim()) return;
-                      addCategory({
+                      await addCategory({
                         ...newCategory,
                         slug:
                           newCategory.slug.trim() ||
                           "cat_" + Date.now(),
                       });
                       setIsAddingCategory(false);
-                      showNotification("تمت إضافة التصنيف بنجاح!");
+                      showNotification("تمت إضافة التصنيف بنجاح في السحابة!");
                     }}
                     className="bg-brown text-cream-light font-bold px-4 py-2 rounded-xl text-xs"
                   >
@@ -1082,12 +1092,12 @@ export default function AdminPage() {
                       </span>
                     </div>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (
                           confirm(`هل تريد بالتأكيد حذف تصنيف "${c.name}"؟`)
                         ) {
-                          deleteCategory(c.id);
-                          showNotification("تم حذف التصنيف!");
+                          await deleteCategory(c.id);
+                          showNotification("تم حذف التصنيف بنجاح من السحابة!");
                         }
                       }}
                       className="text-red-500 hover:text-red-700 p-1"
@@ -1318,9 +1328,13 @@ export default function AdminPage() {
 
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
-                onClick={() => {
-                  updateSettings(localSettings);
-                  showNotification("تم حفظ جميع إعدادات الموقع بنجاح!");
+                onClick={async () => {
+                  const ok = await updateSettings(localSettings);
+                  if (ok) {
+                    showNotification("تم حفظ جميع إعدادات الموقع وتحديثها في السحابة بنجاح!");
+                  } else {
+                    showNotification("تم حفظ الإعدادات محلياً، تعذر الحفظ السحابي");
+                  }
                 }}
                 className="bg-brown hover:bg-brown-dark text-cream-light font-bold px-8 py-3.5 rounded-xl text-sm flex items-center gap-2 shadow-md transition-all"
               >
