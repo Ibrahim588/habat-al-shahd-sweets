@@ -2,26 +2,8 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Products collection: public read, admin write
-    match /products/{productId} {
-      allow read: if true;
-      allow write: if true;
-    }
-
-    // Categories collection: public read, admin write
-    match /categories/{categoryId} {
-      allow read: if true;
-      allow write: if true;
-    }
-
-    // Settings collection (site configuration): public read, admin write
-    match /settings/{settingId} {
-      allow read: if true;
-      allow write: if true;
-    }
-
-    // Inquiries collection: customer submission and admin management
-    match /inquiries/{inquiryId} {
+    // Allow read and write on all collections
+    match /{document=**} {
       allow read, write: if true;
     }
   }
