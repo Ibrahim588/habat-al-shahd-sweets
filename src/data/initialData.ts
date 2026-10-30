@@ -60,12 +60,6 @@ export const initialProducts: Product[] = [
     isFeatured: true,
     isAvailable: true,
     tags: ["أكثر طلباً", "تقليدي", "سمن بلدي"],
-    options: [
-      {
-        name: "الحجم / الوزن",
-        choices: ["طبق نصف كيلو", "طبق كيلو", "طبق كيلو ونصف"],
-      },
-    ],
   },
   {
     id: "basbousa-qeshta",
@@ -81,12 +75,6 @@ export const initialProducts: Product[] = [
     isFeatured: true,
     isAvailable: true,
     tags: ["مميز", "محشو بالقشطة"],
-    options: [
-      {
-        name: "الحجم / الوزن",
-        choices: ["طبق نصف كيلو", "طبق كيلو", "طبق ضيافة عائلي"],
-      },
-    ],
   },
   {
     id: "kunafa",
@@ -102,12 +90,6 @@ export const initialProducts: Product[] = [
     isFeatured: true,
     isAvailable: true,
     tags: ["مقرمش", "ضيافة فاخرة"],
-    options: [
-      {
-        name: "الحجم / الوزن",
-        choices: ["طبق نصف كيلو", "طبق كيلو"],
-      },
-    ],
   },
   {
     id: "rosh-el-sett",
@@ -123,12 +105,6 @@ export const initialProducts: Product[] = [
     isFeatured: true,
     isAvailable: true,
     tags: ["كلاسيك", "الأكثر مبيعاً"],
-    options: [
-      {
-        name: "الحجم / الوزن",
-        choices: ["طبق نصف كيلو", "طبق كيلو"],
-      },
-    ],
   },
   {
     id: "sabaat",
@@ -142,12 +118,6 @@ export const initialProducts: Product[] = [
     isFeatured: true,
     isAvailable: true,
     tags: ["خفيف", "مع القهوة"],
-    options: [
-      {
-        name: "الحجم / الوزن",
-        choices: ["طبق نصف كيلو", "طبق كيلو"],
-      },
-    ],
   },
   {
     id: "baseema",
@@ -161,12 +131,6 @@ export const initialProducts: Product[] = [
     isFeatured: false,
     isAvailable: true,
     tags: ["جوز هند", "أصيل"],
-    options: [
-      {
-        name: "الحجم / الوزن",
-        choices: ["طبق نصف كيلو", "طبق كيلو"],
-      },
-    ],
   },
   {
     id: "basbousa-biscuit",
@@ -180,12 +144,6 @@ export const initialProducts: Product[] = [
     isFeatured: true,
     isAvailable: true,
     tags: ["ابتكار حبات الشهد", "مقرمش وطري"],
-    options: [
-      {
-        name: "الحجم / الوزن",
-        choices: ["طبق نصف كيلو", "طبق كيلو"],
-      },
-    ],
   },
   {
     id: "konka-basbousa",
@@ -290,12 +248,6 @@ export const initialProducts: Product[] = [
     isFeatured: true,
     isAvailable: true,
     tags: ["كعك ناعم", "سكر بودرة", "ضيافة الشاي"],
-    options: [
-      {
-        name: "الحجم / العبوة",
-        choices: ["علبة وسط", "علبة كبيرة"],
-      },
-    ],
   },
   {
     id: "petits-fours",
@@ -309,12 +261,6 @@ export const initialProducts: Product[] = [
     isFeatured: true,
     isAvailable: true,
     tags: ["بتفور مشكل", "هش وخفيف", "أكثر طلباً"],
-    options: [
-      {
-        name: "الحجم / العبوة",
-        choices: ["علبة وسط", "علبة كبيرة"],
-      },
-    ],
   },
   {
     id: "tea-biscuit",
@@ -328,12 +274,6 @@ export const initialProducts: Product[] = [
     isFeatured: false,
     isAvailable: true,
     tags: ["مقرمش", "شاي الصباح", "اقتصادي"],
-    options: [
-      {
-        name: "الحجم / العبوة",
-        choices: ["عبوة نصف كيلو", "عبوة كيلو"],
-      },
-    ],
   },
   {
     id: "yansoon",
@@ -347,12 +287,6 @@ export const initialProducts: Product[] = [
     isFeatured: false,
     isAvailable: true,
     tags: ["يانسون أصيل", "مقرمش وعطري", "مع القهوة والشاي"],
-    options: [
-      {
-        name: "الحجم / العبوة",
-        choices: ["علبة وسط", "علبة كبيرة"],
-      },
-    ],
   },
   {
     id: "ghraiba",
@@ -366,12 +300,6 @@ export const initialProducts: Product[] = [
     isFeatured: true,
     isAvailable: true,
     tags: ["غريبة كلاسيك", "تذوب بالفم", "ضيافة فاخرة"],
-    options: [
-      {
-        name: "الحجم / العبوة",
-        choices: ["علبة وسط", "علبة كبيرة"],
-      },
-    ],
   },
 ];
 

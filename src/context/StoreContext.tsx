@@ -45,6 +45,18 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+const sanitizeProductOptions = (list: Product[]): Product[] =>
+  list.map((prod) => ({
+    ...prod,
+    options: prod.options?.filter(
+      (opt) =>
+        opt.name !== "الحجم / الوزن" &&
+        opt.name !== "الحجم / العبوة" &&
+        !opt.name.includes("الوزن") &&
+        !opt.name.includes("الحجم")
+    ),
+  }));
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>(() => {
     if (typeof window !== "undefined") {
@@ -54,10 +66,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           const parsed = JSON.parse(p) as Product[];
           const existingIds = new Set(parsed.map((item) => item.id));
           const missing = initialProducts.filter((item) => !existingIds.has(item.id));
-          if (missing.length > 0) {
-            return [...parsed, ...missing];
-          }
-          return parsed;
+          const result = missing.length > 0 ? [...parsed, ...missing] : parsed;
+          return sanitizeProductOptions(result);
+
         }
       } catch (e) {
         console.error("Failed to load products from localStorage", e);
@@ -117,7 +128,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const unsubProducts = subscribeToProducts(
       (firestoreProducts) => {
         if (firestoreProducts && firestoreProducts.length > 0) {
-          setProducts(firestoreProducts);
+          setProducts(sanitizeProductOptions(firestoreProducts));
           setIsFirestoreConnected(true);
         }
       },

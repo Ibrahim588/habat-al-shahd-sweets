@@ -26,8 +26,18 @@ export default function ProductDetailView({ productId }: { productId: string }) 
   const product = products.find((p) => p.id === productId);
 
   const [quantity, setQuantity] = useState(1);
+
+  // Filter out redundant size/weight options since pricing by kilo/box is now standard
+  const availableOptions = product?.options?.filter(
+    (opt) =>
+      opt.name !== "الحجم / الوزن" &&
+      opt.name !== "الحجم / العبوة" &&
+      !opt.name.includes("الوزن") &&
+      !opt.name.includes("الحجم")
+  );
+
   const [selectedOption, setSelectedOption] = useState<string>(
-    product?.options?.[0]?.choices?.[0] || ""
+    availableOptions?.[0]?.choices?.[0] || ""
   );
   const [notes, setNotes] = useState("");
   const [addedToast, setAddedToast] = useState(false);
@@ -107,7 +117,7 @@ export default function ProductDetailView({ productId }: { productId: string }) 
   const directWhatsappUrl = `https://wa.me/${settings.primaryWhatsapp}?text=${encodeURIComponent(
     `مرحباً حلويات حبات الشهد 🌸\nأود طلب صنف:\n*${product.name}*\n` +
       (unitOptionName ? `طريقة الشراء: ${unitOptionName}\n` : "") +
-      (selectedOption ? `الخيار / الحجم: ${selectedOption}\n` : "") +
+      (selectedOption ? `الخيار: ${selectedOption}\n` : "") +
       `الكمية: ${quantity} ${activeUnitLabel}\n` +
       (notes ? `ملاحظات: ${notes}\n` : "") +
       (activePrice ? `السعر الإجمالي: ${activePrice * quantity} ر.س\n` : "") +
@@ -284,14 +294,14 @@ export default function ProductDetailView({ productId }: { productId: string }) 
                 {product.description}
               </p>
 
-              {/* Options selection if present */}
-              {product.options && product.options.length > 0 && (
+              {/* Options selection if present (excluding removed size/weight options) */}
+              {availableOptions && availableOptions.length > 0 && (
                 <div className="space-y-3">
                   <label className="text-xs font-bold text-brown block">
-                    {product.options[0].name}:
+                    {availableOptions[0].name}:
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {product.options[0].choices.map((choice) => (
+                    {availableOptions[0].choices.map((choice) => (
                       <button
                         key={choice}
                         onClick={() => setSelectedOption(choice)}

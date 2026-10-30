@@ -10,6 +10,7 @@ import Footer from "@/components/layout/Footer";
 import FloatingWhatsApp from "@/components/common/FloatingWhatsApp";
 import CartDrawer from "@/components/cart/CartDrawer";
 import SearchModal from "@/components/common/SearchModal";
+import CinematicPreloader from "@/components/common/CinematicPreloader";
 
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
@@ -129,6 +130,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col font-arabic bg-cream text-brown antialiased selection:bg-gold/20 selection:text-brown">
         <StoreProvider>
           <CartProvider>
+            <CinematicPreloader />
             <AnnouncementBar />
             <Suspense fallback={<div className="h-16 bg-cream border-b border-beige" />}>
               <Header />
